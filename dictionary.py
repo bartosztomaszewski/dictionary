@@ -9,34 +9,37 @@ def showMenu(dbCon, dbCur):
         match choice:
             case '1':
                 createTable(dbCon,dbCur)
-                try:
-                    eng = input("English word: ")
-                    if eng == "q" or eng == "":
-                        raise ValueError
-                    pl  = input("Polish translation: ")
-                    if pl == "q" or eng == "":
-                        raise ValueError
-                    wordType = input("Type (noun/verb/adjective/other): ")
-                    if wordType == "q" or eng == "":
-                        raise ValueError
-                    os.system('cls')
-                    addRow(dbCon,dbCur,eng,pl,wordType)
-                except ValueError:
-                    os.system('cls')
-                    print('The operation has been canceled')
+                addingMode = True
+                while addingMode:
+                    try:
+                        eng = input("English word: ")
+                        if eng == "q" or eng == "":
+                            raise ValueError
+                        pl  = input("Polish translation: ")
+                        if pl == "q" or eng == "":
+                            raise ValueError
+                        wordType = input("Type (noun/verb/adjective/other): ")
+                        if wordType == "q" or eng == "":
+                            raise ValueError
+                        os.system('cls')
+                        addRow(dbCon,dbCur,eng,pl,wordType)
+                    except ValueError:
+                        os.system('cls')
+                        addingMode = False
+                        print('The operation has been canceled')
 
             case '2':
                 answer = None
                 os.system('cls')
                 while answer != 'q':
                     word = getRandomWord(dbCur)
-                    print(f'Polish: {word[1]}')
+                    print(f'Type: {word[2]}\nPolish: {word[1]}')
                     answer = input("English: ")
                     if answer == word[0]:
-                        print(f"{bcolors.OKGREEN}Correct!{bcolors.ENDC}")
+                        print(f"{bcolors.OKGREEN}Correct!{bcolors.ENDC}\n")
                         increaseWordCounter(dbCon,dbCur,answer)
                     else:
-                        print(f"Wrong answer, the correct is: {word[0]}")
+                        print(f"Wrong answer, the correct is: {bcolors.FAIL}{word[0]}{bcolors.ENDC}\n")
                 os.system('cls')
             
             case '3':
@@ -44,7 +47,7 @@ def showMenu(dbCon, dbCur):
                 os.system('cls')
                 while answer != 'q':
                     word = getRandomWord(dbCur)
-                    print(f'English: {word[0]}')
+                    print(f'Type: {word[2]}\nEnglish: {word[0]}')
                     answer = input("English: ")
                     if answer == word[1]:
                         print(f"{bcolors.OKGREEN}Correct!{bcolors.ENDC}")
@@ -93,6 +96,12 @@ def showMenu(dbCon, dbCur):
                         resetAllCounters(dbCon, dbCur)
                     case 'q':
                         os.system('cls')
+            case 'q':
+                print("Bye!")
+
+            case _:
+                os.system('cls')
+                print('Wrong option\n')
     return
 
 if __name__ == '__main__':
