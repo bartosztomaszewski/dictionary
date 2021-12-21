@@ -18,9 +18,15 @@ def initializeDatabase(dbName):
 def createDatabaseCursor(dbCon):
     return dbCon.cursor()
 
-def createTable(dbCon,dbCur):
+def createWordsTable(dbCon,dbCur):
     dbCur.execute('''CREATE TABLE IF NOT EXISTS dictionary
                      (eng TEXT PRIMARY KEY, pl TEXT, type TEXT, howManyTrained INT)''')
+    dbCon.commit()
+    return
+
+def createReadingTable(dbCon,dbCur):
+    dbCur.execute('''CREATE TABLE IF NOT EXISTS expressions
+                     (eng TEXT, comments TEXT, howManyRead INT)''')
     dbCon.commit()
     return
 
@@ -56,6 +62,35 @@ def getRandomWord(dbCur):
 
     randomWord = dbCur.fetchall()
     
+    return randomWord[randomNumber]
+
+def getRandomExpression(dbCon, dbCur):
+    dbCur.execute('''SELECT howManyRead FROM expressions
+                     ORDER BY howManyRead ASC
+                     LIMIT 1''')
+
+    theLeastValue = dbCur.fetchall()
+
+    dbCur.execute('''SELECT COUNT(howManyRead)
+                     FROM expressions
+                     WHERE howManyRead = ?''',(theLeastValue[0][0],))
+
+    howManyExpressionsOnThisLevel = dbCur.fetchall()
+    randomNumber = randint(0, howManyExpressionsOnThisLevel[0][0] - 1)
+
+    dbCur.execute('''SELECT eng, comments FROM expressions
+                     WHERE howManyRead = ?''',(theLeastValue[0][0],))
+    randomWord = dbCur.fetchall()
+
+    dbCur.execute('''SELECT howManyRead FROM expressions
+                     WHERE eng = ?''',(randomWord[randomNumber][0],))
+    counter = dbCur.fetchall()
+    updatedCounter = counter[0][0] + 1
+    dbCur.execute('''UPDATE expressions
+                     SET howManyRead = ? 
+                     WHERE eng = ?''',(updatedCounter, randomWord[randomNumber][0]))
+    dbCon.commit()
+
     return randomWord[randomNumber]
 
 class bcolors:
@@ -129,7 +164,6 @@ def resetAllCounters(dbCon, dbCur):
         print(f"There was an error during reseting words' counters: {e}")
 
 def correctWord(dbCon, dbCur, eng, pl, wordType, editingWord):
-    
     try:
         dbCur.execute('''UPDATE dictionary
                         SET eng = ?, pl = ?, type = ?
@@ -140,3 +174,13 @@ def correctWord(dbCon, dbCur, eng, pl, wordType, editingWord):
     except sqlite3.Error as e:
         os.system('cls')
         print(f'There was an error during updating the word "{editingWord}": {e}')
+
+def addExpression(dbCon, dbCur, expression, comment):
+    try:
+        dbCur.execute('''INSERT INTO expressions
+                         VALUES (?, ?, '0')''',(expression,comment))
+        dbCon.commit()
+        print(f'The expression "{bcolors.OKGREEN}{expression}{bcolors.ENDC}" has been added successfully!')
+    except sqlite3.Error as e:
+        print(f'The error has occured: {e}')
+    return
