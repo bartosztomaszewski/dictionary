@@ -1,0 +1,776 @@
+[
+  [
+    "abandon",
+    "porzucić, opuścić",
+    "verb",
+    0
+  ],
+  [
+    "acknowledge",
+    "potwierdzić",
+    "verb",
+    1
+  ],
+  [
+    "after which",
+    "po którym",
+    "other",
+    1
+  ],
+  [
+    "afterwards",
+    "po wszystkim",
+    "other",
+    1
+  ],
+  [
+    "along with",
+    "razem z",
+    "other",
+    1
+  ],
+  [
+    "among",
+    "pośród",
+    "other",
+    1
+  ],
+  [
+    "aquiline nose",
+    "orli nos",
+    "noun",
+    0
+  ],
+  [
+    "as recently as yesterday",
+    "nie dawniej jak wczoraj",
+    "other",
+    1
+  ],
+  [
+    "audacious",
+    "śmiały",
+    "adjective",
+    0
+  ],
+  [
+    "avocation",
+    "hobby, zajęcie dodatkowe",
+    "noun",
+    0
+  ],
+  [
+    "bald",
+    "łysy",
+    "adjective",
+    1
+  ],
+  [
+    "be obligated to",
+    "być zobligowanyn do",
+    "other",
+    1
+  ],
+  [
+    "beard",
+    "broda",
+    "noun",
+    1
+  ],
+  [
+    "belly",
+    "brzuch",
+    "noun",
+    1
+  ],
+  [
+    "certain",
+    "pewny",
+    "adjective",
+    1
+  ],
+  [
+    "charnel house",
+    "kostnica",
+    "noun",
+    1
+  ],
+  [
+    "commited",
+    "oddany, zobowiązany, wierny",
+    "adjective",
+    1
+  ],
+  [
+    "competence",
+    "kompetencja do robienia czegoś",
+    "noun",
+    1
+  ],
+  [
+    "complacency",
+    "spokój ducha",
+    "noun",
+    0
+  ],
+  [
+    "complementary",
+    "komplementarny, dopełniający się",
+    "adjective",
+    1
+  ],
+  [
+    "condense",
+    "kondensować",
+    "verb",
+    0
+  ],
+  [
+    "confidence",
+    "pewność",
+    "noun",
+    0
+  ],
+  [
+    "confident of sth",
+    "pewność czegoś",
+    "other",
+    0
+  ],
+  [
+    "consist",
+    "składać się",
+    "verb",
+    1
+  ],
+  [
+    "cough",
+    "kaszel",
+    "noun",
+    1
+  ],
+  [
+    "cure",
+    "leczyć",
+    "verb",
+    1
+  ],
+  [
+    "cut corners",
+    "iść na skróty",
+    "wyrażenie",
+    0
+  ],
+  [
+    "demand",
+    "żądać, wymagać",
+    "verb",
+    1
+  ],
+  [
+    "discipline",
+    "dyscyplina",
+    "noun",
+    1
+  ],
+  [
+    "diseases",
+    "choroby",
+    "noun",
+    1
+  ],
+  [
+    "dissimilar",
+    "niepodobny",
+    "adjective",
+    1
+  ],
+  [
+    "drag",
+    "ciągnąć, przeciągać zwlekać",
+    "verb",
+    1
+  ],
+  [
+    "drop the ball",
+    "make an error, miss an opportunity",
+    "other",
+    1
+  ],
+  [
+    "durable",
+    "trwały, wytrzymały",
+    "adjective",
+    1
+  ],
+  [
+    "eating disorders",
+    "zaburzenia odżywiania",
+    "noun",
+    1
+  ],
+  [
+    "emotional charge",
+    "ładunek emocjonalny",
+    "noun",
+    2
+  ],
+  [
+    "ensure",
+    "zapewniać",
+    "verb",
+    1
+  ],
+  [
+    "even louder than she did",
+    "nawet głośniej niż ona",
+    "other",
+    1
+  ],
+  [
+    "even though",
+    "mimo że",
+    "other",
+    1
+  ],
+  [
+    "event",
+    "wydarzenie",
+    "noun",
+    2
+  ],
+  [
+    "everything gave the impression of being normal",
+    "wszystko sprawiało wrażenie bycia normalnym",
+    "other",
+    0
+  ],
+  [
+    "excessive",
+    "nadmierny, wygórowany",
+    "adjective",
+    2
+  ],
+  [
+    "express yourself",
+    "wyrazić siebie",
+    "wyrażenie",
+    1
+  ],
+  [
+    "expressive",
+    "ekspresyjny",
+    "adjective",
+    1
+  ],
+  [
+    "fatty",
+    "tłuste",
+    "adjective",
+    1
+  ],
+  [
+    "fever",
+    "gorączka",
+    "noun",
+    0
+  ],
+  [
+    "flu",
+    "grypa",
+    "noun",
+    1
+  ],
+  [
+    "food poisoning",
+    "zatrucie pokarmowe",
+    "noun",
+    1
+  ],
+  [
+    "frank",
+    "szczery",
+    "adjective",
+    0
+  ],
+  [
+    "grit teeth",
+    "zacisnąć zęby",
+    "verb",
+    1
+  ],
+  [
+    "haircut",
+    "fryzura",
+    "noun",
+    0
+  ],
+  [
+    "hangover",
+    "kac",
+    "noun",
+    0
+  ],
+  [
+    "harmful",
+    "szkodliwy",
+    "adjective",
+    1
+  ],
+  [
+    "headache",
+    "ból głowy",
+    "noun",
+    1
+  ],
+  [
+    "headcold",
+    "przeziębienie",
+    "noun",
+    1
+  ],
+  [
+    "human greed",
+    "ludzka zachłanność",
+    "noun",
+    1
+  ],
+  [
+    "improving someone",
+    "polepszający kogoś",
+    "other",
+    1
+  ],
+  [
+    "in my perception of...",
+    "w moim postrzeganiu...",
+    "zwrot/wyrażenie",
+    2
+  ],
+  [
+    "in retrospect",
+    "z perspektywy czasu",
+    "other",
+    0
+  ],
+  [
+    "influence",
+    "wpływ",
+    "noun",
+    1
+  ],
+  [
+    "internist",
+    "lekarz internista",
+    "noun",
+    1
+  ],
+  [
+    "jaw",
+    "szczęka",
+    "noun",
+    1
+  ],
+  [
+    "just because of",
+    "jedynie z powodu",
+    "other",
+    1
+  ],
+  [
+    "lack",
+    "brakować",
+    "verb",
+    0
+  ],
+  [
+    "lecture",
+    "wykład",
+    "noun",
+    1
+  ],
+  [
+    "leftovers",
+    "resztki jedzenia",
+    "noun",
+    1
+  ],
+  [
+    "let's go back to...",
+    "wróćmy do...",
+    "other",
+    1
+  ],
+  [
+    "loneliness",
+    "samotność",
+    "noun",
+    1
+  ],
+  [
+    "midfielder",
+    "pomocnik",
+    "noun",
+    1
+  ],
+  [
+    "minute by minute",
+    "z minuty na minutę",
+    "other",
+    1
+  ],
+  [
+    "moment of silence followed",
+    "nastąpił moment ciszy",
+    "other",
+    0
+  ],
+  [
+    "moustache",
+    "wąs",
+    "noun",
+    0
+  ],
+  [
+    "neat",
+    "bardzo dobry",
+    "adjective",
+    1
+  ],
+  [
+    "necessity of",
+    "konieczność",
+    "other",
+    1
+  ],
+  [
+    "nutritious",
+    "pożywne",
+    "adjective",
+    0
+  ],
+  [
+    "omnipresent",
+    "wszechobecny",
+    "adjective",
+    3
+  ],
+  [
+    "on duty",
+    "na dyżurze",
+    "other",
+    1
+  ],
+  [
+    "patient",
+    "cierpliwy",
+    "adjective",
+    1
+  ],
+  [
+    "preceded by",
+    "poprzedzony przez",
+    "other",
+    2
+  ],
+  [
+    "priceless",
+    "bezcenny",
+    "adjective",
+    1
+  ],
+  [
+    "prudent",
+    "rozważny",
+    "adjective",
+    1
+  ],
+  [
+    "psychiatrist",
+    "psychiatra",
+    "noun",
+    1
+  ],
+  [
+    "psychologist",
+    "psycholog",
+    "noun",
+    1
+  ],
+  [
+    "rational",
+    "racjonalny, rozsądny",
+    "adjective",
+    0
+  ],
+  [
+    "receding hairline",
+    "zakola",
+    "noun",
+    1
+  ],
+  [
+    "receptionist",
+    "recepcjonistka",
+    "noun",
+    1
+  ],
+  [
+    "recognise",
+    "dostrzegać, rozpoznawać",
+    "verb",
+    0
+  ],
+  [
+    "redirect",
+    "przekierować",
+    "verb",
+    1
+  ],
+  [
+    "refute",
+    "odrzucić",
+    "verb",
+    0
+  ],
+  [
+    "regardless of that",
+    "niezależnie od tego",
+    "other",
+    0
+  ],
+  [
+    "relieve",
+    "ulżyć, luzować",
+    "verb",
+    1
+  ],
+  [
+    "resentment",
+    "żal",
+    "noun",
+    1
+  ],
+  [
+    "respiratory problem",
+    "problemy z oddychaniem",
+    "noun",
+    1
+  ],
+  [
+    "restless eyes",
+    "rozbiegane oczy",
+    "noun",
+    1
+  ],
+  [
+    "rewarding",
+    "cenny, satysfakcjonujący",
+    "adjective",
+    0
+  ],
+  [
+    "runny nose",
+    "katar",
+    "noun",
+    1
+  ],
+  [
+    "scrambled eggs",
+    "jajecznica",
+    "noun",
+    0
+  ],
+  [
+    "self-sufficient",
+    "samowystarczalny",
+    "adjective",
+    0
+  ],
+  [
+    "shameful",
+    "karygodny, żenujący",
+    "adjective",
+    0
+  ],
+  [
+    "shortcomings",
+    "braki",
+    "noun",
+    0
+  ],
+  [
+    "skinny",
+    "chudy",
+    "adjective",
+    1
+  ],
+  [
+    "social diseases",
+    "choroby społeczne",
+    "noun",
+    1
+  ],
+  [
+    "spoil a mood",
+    "zepsuć humor",
+    "other",
+    0
+  ],
+  [
+    "spontaneous",
+    "spontaniczny",
+    "adjective",
+    1
+  ],
+  [
+    "stimulus",
+    "bodzieć",
+    "noun",
+    1
+  ],
+  [
+    "stomachache",
+    "ból brzucha",
+    "noun",
+    1
+  ],
+  [
+    "strew",
+    "sypać, rozsypać, rozrzucić",
+    "verb",
+    1
+  ],
+  [
+    "striker",
+    "napastnik",
+    "noun",
+    1
+  ],
+  [
+    "subjective",
+    "subiektywny",
+    "adjective",
+    2
+  ],
+  [
+    "suppose",
+    "przypuszczać",
+    "verb",
+    1
+  ],
+  [
+    "surgery",
+    "gabinet lekarski",
+    "noun",
+    0
+  ],
+  [
+    "sustainable",
+    "trwały, zrównoważony",
+    "adjective",
+    1
+  ],
+  [
+    "symptom",
+    "symptom",
+    "noun",
+    1
+  ],
+  [
+    "talkative",
+    "rozmowny",
+    "adjective",
+    1
+  ],
+  [
+    "tall order",
+    "trudny rozkaz",
+    "noun",
+    1
+  ],
+  [
+    "tame",
+    "poskromić, okiełznać",
+    "verb",
+    0
+  ],
+  [
+    "thought-provoking",
+    "dający do myślenia",
+    "adjective",
+    0
+  ],
+  [
+    "to shape the view of the world",
+    "kształtować pogląd na świat",
+    "zwrot/wyrażenie",
+    3
+  ],
+  [
+    "to take advantage of someone",
+    "wykorzystać kogoś",
+    "other",
+    1
+  ],
+  [
+    "toothache",
+    "ból zęba",
+    "noun",
+    1
+  ],
+  [
+    "trait",
+    "cecha",
+    "noun",
+    1
+  ],
+  [
+    "trustworthy",
+    "godny zaufania",
+    "adjective",
+    1
+  ],
+  [
+    "turn out",
+    "okazać",
+    "verb",
+    0
+  ],
+  [
+    "urge",
+    "namawiać, zalecać",
+    "verb",
+    0
+  ],
+  [
+    "video excerpt",
+    "fragment filmu",
+    "noun",
+    1
+  ],
+  [
+    "were in line with the rest part of my team",
+    "być w zgodzie z resztą częścią mojego zespołu",
+    "wyrażenie",
+    0
+  ],
+  [
+    "which for sure",
+    "który na pewno",
+    "other",
+    1
+  ],
+  [
+    "within an hour",
+    "w przeciągu godziny",
+    "other",
+    1
+  ],
+  [
+    "you look like something the cat brought in11",
+    "wyglądasz jak siedem nieszczęść",
+    "idiom",
+    1
+  ]
+]
