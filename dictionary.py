@@ -1,7 +1,7 @@
 from functions import *
 
 def showMenu(dbCon, dbCur):
-    tables = createTablesClasses(dbCur)
+    tables = createClassesWithTables(dbCur)
     choice = ''
     print('Welcome to the self-made program, which helps you learn English words :)\nChoose one of the following options:')
     while choice != 'q':
@@ -17,7 +17,7 @@ def showMenu(dbCon, dbCur):
             case '4':
                 administratingMode(dbCon,dbCur)
             case '5':
-                readingMode(dbCon,dbCur)
+                readingMode(dbCon,dbCur,tables)
             case 'q':
                 print("Bye!")
             case _:

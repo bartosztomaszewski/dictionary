@@ -19,13 +19,14 @@ class table:
         self.tableName = tableName.replace("'","")
         self.counterColumnName = counterColumnName.replace("'","")
 
+
 def addWord(dbCon,dbCur):
     createWordsTable(dbCon,dbCur)
     addingMode = True
     while addingMode:
         try:
             eng = input("English word: ")
-            if eng == "q" or eng == "":
+            if eng in ("q", ""):
                 raise ValueError
             pl  = input("Polish translation: ")
             if pl == "q" or eng == "":
@@ -71,15 +72,21 @@ def administratingMode(dbCon,dbCur):
     for word in words:
         print(f'{word}')
     
-    answer = input('''\n1 - Select an English word you wanna edit
+    answer = input('''
+1 - Select an English word you wanna edit
 2 - Reset all counters
 3 - Export all words to JSON file
-4 - Import all words from JSON file
+4 - Import all words from JSON file (it won't change English words)
+5 - Show number of words per level
 q - return to the main menu\n: ''')
     match answer:
         case '1':
             editingWord = input('Write an English word: ')
-            answer = input ("1 - Delete word\n2 - Set counter\n3 - Make a correction\nYour choice: ")         
+            answer = input ('''
+1 - Delete word
+2 - Set counter
+3 - Make a correction
+Your choice: ''')         
             match answer:
                 case '1':
                     deleteWord(dbCon, dbCur, editingWord)
@@ -124,6 +131,44 @@ q - return to the main menu\n: ''')
                     print(f'There was an error during updating the word "{word}": {e}')
             dbCon.commit()
             print('Words have been updated successfully according to "words.json" file\n')
+        case '5':
+            dbCur.execute('''SELECT DISTINCT howManyTrained
+                             FROM dictionary
+                             ORDER BY howManyTrained ASC''')
+            allLevels = dbCur.fetchall()
+            #print(allLevels)
+            clearLevels = []
+            for level in allLevels:
+                clearLevels.append(str(level[0]))
+            loop = True
+            while loop:
+                for level in clearLevels:
+                    dbCur.execute('''SELECT COUNT(eng)
+                                    FROM dictionary
+                                    WHERE howManyTrained = ?''',(level,))
+                    numberOfWords = dbCur.fetchall()
+                    print(f'Level {level} -> words {numberOfWords[0][0]}')
+                answer = input('''
+Write a level to show all words on this level
+q - back to main menu
+Your answer: ''')
+                os.system('cls')
+                print(f'Your answer: {answer}')
+                if answer in clearLevels:
+                    dbCur.execute('''SELECT eng, pl, type
+                                    FROM dictionary
+                                    WHERE howManyTrained = ?
+                                    ORDER BY eng ASC''',(answer,))
+                    print('')
+                    for word in dbCur.fetchall():
+                        print(f'{word[0]} / {word[1]} / {word[2]}')
+                    print('')
+                elif answer is 'q':
+                    loop = False
+                    os.system('cls')
+                else:
+                    os.system('cls')
+                    print('Wrong answer!\n')
         case 'q':
             os.system('cls')
 
@@ -148,13 +193,15 @@ def createReadingTable(dbCon,dbCur):
     dbCon.commit()
     return
 
-def createTablesClasses(dbCur):
+def createClassesWithTables(dbCur):
     dbCur.execute("SELECT name, sql FROM sqlite_master WHERE type='table';")
     allTables = dbCur.fetchall()
     listOfTables = []
     for myTable in allTables:
-        length = len(myTable[1].split())
-        tempTable = table(myTable[0],myTable[1].split()[length-2])
+        #learningColumn = len(myTable[1].split())
+        learningColumn = [i for i, item in enumerate(myTable[1].split()) if item.startswith('howMany')]
+        #tempTable = table(myTable[0],myTable[1].split()[length-2])
+        tempTable = table(myTable[0],myTable[1].split()[learningColumn[0]])
         listOfTables.append(tempTable)
     return listOfTables
 
@@ -198,7 +245,7 @@ def getRandom(dbCon, dbCur, tables, tableName):
                     WHERE {myTable.counterColumnName} = {theSmallestValue[0][0]}''')
     howManyRowsOnThisLevel = dbCur.fetchall()
     randomNumber = randint(0, howManyRowsOnThisLevel[0][0] - 1)
-
+    #print(f'Random number: {randomNumber}, howManyRowsOnThisLevel: {howManyRowsOnThisLevel[0][0]}')
     match myTable.tableName:
         case 'dictionary':
             dbCur.execute('''SELECT eng, pl, type FROM dictionary
@@ -252,10 +299,11 @@ def getRandomWord(dbCur):
                      FROM dictionary
                      WHERE howManyTrained = ?''',(theSmallestValue[0][0],))
     howManyWordsOnThisLevel = dbCur.fetchall()
-    randomNumber = randint(0, howManyWordsOnThisLevel[0][0] - 1)
     dbCur.execute('''SELECT eng, pl, type FROM dictionary
                      WHERE howManyTrained = ?''',(theSmallestValue[0][0],))
     randomWord = dbCur.fetchall()
+    randomNumber = randint(0, howManyWordsOnThisLevel[0][0] - 1)
+    #print(f'Random number: {randomNumber}, howManyRowsOnThisLevel: {howManyWordsOnThisLevel[0][0]}')
     return randomWord[randomNumber]
 
 def getTable(allTables, tableName):
@@ -280,12 +328,12 @@ def initializeDatabase(dbName):
     try:
         databaseConnection = sqlite3.connect(f'database\\{dbName}.db')
     except sqlite3.Error as e:
-        print(e + ' in ' + "database" + '\\' + dbName)
+        print(e + ' in ' + 'database' + '\\' + dbName)
     finally:
-        if createDatabaseCursor != None:
-            print ('Database has been connected')
-        else:
+        if createDatabaseCursor is None:
             print ('There was an error during connecting to database')
+        else:
+            print ('Database has been connected')
         return databaseConnection
 
 def learningModeEngToPl(dbCon,dbCur):
@@ -295,11 +343,15 @@ def learningModeEngToPl(dbCon,dbCur):
         word = getRandomWord(dbCur)
         print(f'Type: {word[2]}\nEnglish: {word[0]}')
         answer = input("English: ")
-        if answer == word[1]:
-            print(f"{bcolors.OKGREEN}Correct!{bcolors.ENDC}")
-            increaseWordCounter(dbCon,dbCur,answer)
+        if word[2] in ['noun', 'verb', 'adjective']:
+            plWords = word[1].split(', ')
         else:
-            print(f"Wrong answer, the correct is: {word[1]}")
+            plWords = word[1]
+        if answer in plWords:
+            print(f"{bcolors.OKGREEN}Correct!{bcolors.ENDC} {word[1]}\n")
+            increaseWordCounter(dbCon,dbCur,word[0])
+        else:
+            print(f"{bcolors.FAIL}Wrong answer{bcolors.ENDC}, the correct is: {word[1]}\n")
     os.system('cls')   
 
 def learningModePlToEng(dbCon,dbCur):
@@ -314,12 +366,16 @@ def learningModePlToEng(dbCon,dbCur):
             increaseWordCounter(dbCon,dbCur,answer)
         else:
             print(f"Wrong answer, the correct is: {bcolors.FAIL}{word[0]}{bcolors.ENDC}\n")
-    os.system('cls')
+    #os.system('cls')
 
-def readingMode(dbCon,dbCur):
+def readingMode(dbCon,dbCur,allTables):
     createReadingTable(dbCon,dbCur)
     os.system('cls')                
-    answer = input('\n1 - Add an expression\n2 - Read a random expression\n3 - Reset reading counters\nq - return to the main menu\n:')
+    answer = input('''1 - Add an expression
+2 - Read a random expression
+3 - Reset reading counters
+q - return to the main menu
+Your choice: ''')
     match answer:
         case '1':
             addingMode = True
@@ -340,7 +396,7 @@ def readingMode(dbCon,dbCur):
             readingMode = True
             while readingMode:
                 #expression = getRandomExpression(dbCon, dbCur)
-                expression = getRandom(dbCon, dbCur, tables, 'expressions')
+                expression = getRandom(dbCon, dbCur, allTables, 'expressions')
                 print(f'Expression: {expression[0]}\nComments: {expression[1]}')
                 comment = input()
                 if comment == 'q':
