@@ -2,6 +2,9 @@ import sqlite3
 import os
 from random import randint
 import json
+from repository import *
+
+cls = lambda: os.system('cls' if os.name=='nt' else 'clear')
 
 class bcolors:
     HEADER = '\033[95m'
@@ -34,40 +37,41 @@ def addWord(dbCon,dbCur):
             wordType = input("Type (noun/verb/adjective/other): ")
             if wordType == "q" or eng == "":
                 raise ValueError
-            os.system('cls')
-            addRow(dbCon,dbCur,eng,pl,wordType)
+            cls()
+            addWord(dbCon,dbCur,eng,pl,wordType)
         except ValueError:
-            os.system('cls')
+            cls()
             addingMode = False
             print('The operation has been canceled')
 
 
-def addExpression(dbCon, dbCur, expression, comment):
-    try:
-        dbCur.execute('''INSERT INTO expressions
-                         VALUES (?, ?, '0')''',(expression,comment))
-        dbCon.commit()
-        os.system('cls')
-        print(f'The expression "{bcolors.OKGREEN}{expression}{bcolors.ENDC}" has been added successfully!')
-    except sqlite3.Error as e:
-        print(f'The error has occured: {e}')
-    return
+def addExpression(dbCon, dbCur):
+    while True:
+        expression = input("Write an English expression: ")
+        if expression in ['q', '']:
+            print("The operation has been cancelled\n")
+            return
+        comment = input("Any comment?: ")
+        if comment == 'q':
+            print("The operation has been cancelled\n")
+            return
+        result = addExpressionToDb(dbCon, dbCur, expression, comment)
+        if result is True:
+            cls()
+            print(f'The expression "{bcolors.OKGREEN}{expression}{bcolors.ENDC}" has been added successfully!\n')
+        else:
+            print(f'The error has occured: {result}\n')
 
-def addRow(dbCon,dbCur,wEng,wPl,wType):
-    try:
-        dbCur.execute('''INSERT INTO dictionary
-                         VALUES (?, ?, ?, '0')''',(wEng,wPl,wType))
-        dbCon.commit()
+def addWord(dbCon,dbCur,wEng,wPl,wType):
+    result = addWordToDb(dbCon,dbCur,wEng,wPl,wType)
+    if result is True:
         print(f'{bcolors.OKGREEN}The word "{wEng}/{wPl}/{wType}" has been added successfully!{bcolors.ENDC}')
-    except sqlite3.IntegrityError as e:
-        print(f'The word "{wEng}" already exists in the database')
-    except (sqlite3.Error, sqlite3.Error)  as e:
-        print(f'The error has occured: {e}')
-    return
+    else:
+        print(f'The error has occured: {result}')
 
-def administratingMode(dbCon,dbCur):           
-    os.system('cls')
-    words = getAllWords(dbCur)
+def administratingMode(dbCur):           
+    cls()
+    words = getAllWordsInDb(dbCur)
     print("eng / pl / type / how many times it was trained\n")
     for word in words:
         print(f'{word}')
@@ -79,123 +83,93 @@ def administratingMode(dbCon,dbCur):
 4 - Import all words from JSON file (it won't change English words)
 5 - Show number of words per level
 q - return to the main menu\n: ''')
-    match answer:
-        case '1':
-            editingWord = input('Write an English word: ')
-            answer = input ('''
+    return answer, words
+
+def am_editWord(dbCon,dbCur):
+    editingWord = input('Write an English word: ')
+    answer = input ('''
 1 - Delete word
 2 - Set counter
 3 - Make a correction
-Your choice: ''')         
-            match answer:
-                case '1':
-                    deleteWord(dbCon, dbCur, editingWord)
-                case '2':
-                    correctFormat = False
-                    newCounter = None
-                    while not correctFormat and newCounter != 'q': 
-                        newCounter = input(f'Write a new value for "{editingWord}" counter: ')
-                        try:
-                            int(newCounter)
-                            setCounter(dbCon, dbCur, editingWord, newCounter)
-                            correctFormat = True
-                        except:
-                            if newCounter != 'q':
-                                print(f'"{newCounter}" is not a number! Try again...')
-                            else:
-                                print("Operation cancelled")
-                case '3':
-                    eng = input('Write a new English word: ')
-                    pl = input('Write a new Polish word: ')
-                    wordType = input("Write a new type (noun/verb/adjective/other): ")
-                    correctWord(dbCon, dbCur, eng, pl, wordType, editingWord)
-                case _:
-                    print("You didn't choose any of the available options.")
-        case '2':
-            resetAllCounters(dbCon, dbCur)
-        case '3':
-            with open('database\\words.json', 'w', encoding='utf-8') as f:
-                json.dump(words, f, ensure_ascii=False, indent=2)
-            os.system('cls')
-            print(f'All words has been exported to {bcolors.OKGREEN}words.json{bcolors.ENDC} file in "database" folder')
-        case '4':
-            f = open('database\\words.json', 'r', encoding='utf-8')
-            data = json.load(f)
-            os.system('cls')
-            for word in data:
-                try:
-                    dbCur.execute('''UPDATE dictionary
-                        SET eng = ?, pl = ?, type = ?, howManyTrained = ?
-                        WHERE eng = ?''',(word[0], word[1], word[2], word[3], word[0]))
-                except sqlite3.Error as e:
-                    print(f'There was an error during updating the word "{word}": {e}')
-            dbCon.commit()
-            print('Words have been updated successfully according to "words.json" file\n')
-        case '5':
-            dbCur.execute('''SELECT DISTINCT howManyTrained
-                             FROM dictionary
-                             ORDER BY howManyTrained ASC''')
-            allLevels = dbCur.fetchall()
-            #print(allLevels)
-            clearLevels = []
-            for level in allLevels:
-                clearLevels.append(str(level[0]))
-            loop = True
-            while loop:
-                for level in clearLevels:
-                    dbCur.execute('''SELECT COUNT(eng)
-                                    FROM dictionary
-                                    WHERE howManyTrained = ?''',(level,))
-                    numberOfWords = dbCur.fetchall()
-                    print(f'Level {level} -> words {numberOfWords[0][0]}')
-                answer = input('''
+Your choice: ''')
+    return answer, editingWord
+
+def am_setCounter(dbCon, dbCur, editingWord):
+    correctFormat = False
+    newCounter = None
+    while not correctFormat and newCounter != 'q': 
+        newCounter = input(f'Write a new value for "{editingWord}" counter: ')
+        if newCounter.isNumber():
+            counterAfterChange = setCounterInDb(dbCon, dbCur, editingWord, newCounter)
+            if str(counterAfterChange[0][0]) == str(newCounter):
+                print(f'Counter has been set to {newCounter} for word "{editingWord}" successfully')
+                correctFormat = True
+            else:
+                print(f'We were unable to set counter for word "{editingWord}", please try again.')
+        elif newCounter != 'q':
+            print(f'"{newCounter}" is not a number! Try again...')
+        else:
+            print("Operation cancelled")
+
+def am_makeCorrection(dbCon, dbCur, editingWord):
+    eng = input('Write a new English word: ')
+    pl = input('Write a new Polish word: ')
+    wordType = input("Write a new type (noun/verb/adjective/other): ")
+    correctWord(dbCon, dbCur, eng, pl, wordType, editingWord)
+
+def exportWordsToJson(file, words):
+    with open(file, 'w', encoding='utf-8') as f:
+        json.dump(words, f, ensure_ascii=False, indent=2)
+    cls()
+    print(f'All words has been exported to {bcolors.OKGREEN}{file}{bcolors.ENDC} file')
+
+def importWordsFromJson(file, dbCon, dbCur):
+    f = open(file, 'r', encoding='utf-8')
+    data = json.load(f)
+    cls()
+    importWordsFromJsonIntoDb(dbCon, dbCur, data)  
+    print(f'Words have been updated successfully according to "{file}" file\n')
+
+
+def showNumberOfWordsPerLevel(dbCur):
+    allLevels = getAllKindsOfLevelsFromDb(dbCur)
+    clearLevels = [str(level[0]) for level in allLevels]
+    for level in clearLevels:
+        numberOfWords = getNumberOfWordsOnThatLevelInDb(dbCur, level)
+        print(f'Level {level} -> words {numberOfWords[0][0]}')  
+    answer = input('''
 Write a level to show all words on this level
 q - back to main menu
 Your answer: ''')
-                os.system('cls')
-                print(f'Your answer: {answer}')
-                if answer in clearLevels:
-                    dbCur.execute('''SELECT eng, pl, type
-                                    FROM dictionary
-                                    WHERE howManyTrained = ?
-                                    ORDER BY eng ASC''',(answer,))
-                    print('')
-                    for word in dbCur.fetchall():
-                        print(f'{word[0]} / {word[1]} / {word[2]}')
-                    print('')
-                elif answer is 'q':
-                    loop = False
-                    os.system('cls')
-                else:
-                    os.system('cls')
-                    print('Wrong answer!\n')
-        case 'q':
-            os.system('cls')
+    while True:
+        if answer in clearLevels or answer == 'q':
+            return answer
+        print('\nYou chose a wrong option')
+        answer = input('Your answer: ')
+        
+def showWordsOnChosenLevel(dbCur, level):
+    cls()
+    print(f'Your answer: {level}')
+    words = getAllWordsOnThatLevelInDb(dbCur, level)
+    print('')
+    for word in words:
+        print(f'{word[0]} / {word[1]} / {word[2]}')
+    print('')
 
 def correctWord(dbCon, dbCur, eng, pl, wordType, editingWord):
-    try:
-        dbCur.execute('''UPDATE dictionary
-                         SET eng = ?, pl = ?, type = ?
-                         WHERE eng = ?''',(eng, pl, wordType, editingWord))
-        dbCon.commit()
-        os.system('cls')
+    result = changeWordInDb(dbCon, dbCur, eng, pl, wordType, editingWord)
+    if result is True:
+        cls()
         print(f'The word "{editingWord}" has been changed. The new one is "{eng}/{pl}/{wordType}"')
-    except sqlite3.Error as e:
-        os.system('cls')
-        print(f'There was an error during updating the word "{editingWord}": {e}')
+    else:
+        cls()
+        print(f'There was an error during updating the word "{editingWord}": {result}')
 
 def createDatabaseCursor(dbCon):
     return dbCon.cursor()
 
-def createReadingTable(dbCon,dbCur):
-    dbCur.execute('''CREATE TABLE IF NOT EXISTS expressions
-                     (eng TEXT, comments TEXT, howManyRead INT)''')
-    dbCon.commit()
-    return
-
 def createClassesWithTables(dbCur):
-    dbCur.execute("SELECT name, sql FROM sqlite_master WHERE type='table';")
-    allTables = dbCur.fetchall()
+    allTables = getAllTablesInDb(dbCur)
     listOfTables = []
     for myTable in allTables:
         #learningColumn = len(myTable[1].split())
@@ -206,65 +180,33 @@ def createClassesWithTables(dbCur):
     return listOfTables
 
 def createWordsTable(dbCon,dbCur):
-    dbCur.execute('''CREATE TABLE IF NOT EXISTS dictionary
-                     (eng TEXT PRIMARY KEY, pl TEXT, type TEXT, howManyTrained INT)''')
-    dbCon.commit()
-    return
+    createDictionaryTableInDb(dbCon,dbCur)
 
-def deleteWord(dbCon, dbCur, word):
-    dbCur.execute('''SELECT COUNT(eng)
-                     FROM dictionary''')
-    before = dbCur.fetchall()
-    dbCur.execute('''DELETE FROM dictionary
-                     WHERE eng = ?''',(word,))
-    print (dbCur.fetchall())
-    dbCon.commit()
-    dbCur.execute('''SELECT COUNT(eng)
-                     FROM dictionary''')
-    after = dbCur.fetchall()
+def am_deleteWord(dbCon, dbCur, word):
+    before = getNumberOfWordsInDb(dbCur)
+    deleteWordFromDb(dbCon, dbCur, word)
+    after = getNumberOfWordsInDb(dbCur)
     if before[0][0] == after[0][0] + 1:
-        os.system('cls')
+        cls()
         print(f'The word "{word}" has been deleted successfully')
     else:
         print(f'There was an error during deleting "{word}" word. The number of words in the dictionary is the same like before.')
 
-def getAllWords(dbCur):
-    dbCur.execute('''SELECT eng, pl, type, howManyTrained FROM dictionary
-                     ORDER BY eng ASC''')
-    return dbCur.fetchall()
-
 def getRandom(dbCon, dbCur, tables, tableName):
     myTable = getTable(tables, tableName)
-    dbCur.execute(f'''SELECT {myTable.counterColumnName} 
-                      FROM {myTable.tableName} 
-                      ORDER BY {myTable.counterColumnName} 
-                      ASC LIMIT 1''')
-    theSmallestValue = dbCur.fetchall()
-    dbCur.execute(f'''SELECT COUNT({myTable.counterColumnName})
-                    FROM {myTable.tableName}
-                    WHERE {myTable.counterColumnName} = {theSmallestValue[0][0]}''')
-    howManyRowsOnThisLevel = dbCur.fetchall()
-    randomNumber = randint(0, howManyRowsOnThisLevel[0][0] - 1)
+    theSmallestLevel = getTheSmallestCounterValueInDb(dbCur, myTable)
+    numberOfRowsOnTheSmallestLevel = getNumberOfRowsOnThatLevelInDb(dbCur, myTable, theSmallestLevel[0][0])
+    randomNumber = randint(0, numberOfRowsOnTheSmallestLevel[0][0] - 1)
     #print(f'Random number: {randomNumber}, howManyRowsOnThisLevel: {howManyRowsOnThisLevel[0][0]}')
     match myTable.tableName:
         case 'dictionary':
-            dbCur.execute('''SELECT eng, pl, type FROM dictionary
-                    WHERE howManyTrained = ?''',(theSmallestValue[0][0],))
-            randomWord = dbCur.fetchall()
-            return randomWord[randomNumber]
+            wordsOnTheSmallestLevel = getAllWordsOnThatLevelInDb(dbCur, theSmallestLevel[0][0])
+            return wordsOnTheSmallestLevel[randomNumber]
         case 'expressions':
-            dbCur.execute('''SELECT eng, comments FROM expressions
-                    WHERE howManyRead = ?''',(theSmallestValue[0][0],))
-            randomWord = dbCur.fetchall()
-            dbCur.execute('''SELECT howManyRead FROM expressions
-                            WHERE eng = ?''',(randomWord[randomNumber][0],))
-            counter = dbCur.fetchall()
-            updatedCounter = counter[0][0] + 1
-            dbCur.execute('''UPDATE expressions
-                            SET howManyRead = ? 
-                            WHERE eng = ?''',(updatedCounter, randomWord[randomNumber][0]))
-            dbCon.commit()
-            return randomWord[randomNumber]
+            expressionsOnTheSameLevel =  getAllExpressionsOnThatLevelInDb(dbCur,  theSmallestLevel[0][0])
+            updatedCounter = expressionsOnTheSameLevel[randomNumber][2] + 1
+            increaseExpressionCounterByOneInDb(dbCon, dbCur, expressionsOnTheSameLevel[randomNumber])
+            return expressionsOnTheSameLevel[randomNumber]
 
 """
 def getRandomExpression(dbCon, dbCur):
@@ -290,6 +232,7 @@ def getRandomExpression(dbCon, dbCur):
     dbCon.commit()
     return randomWord[randomNumber]
 """
+
 def getRandomWord(dbCur):
     dbCur.execute('''SELECT howManyTrained FROM dictionary
                      ORDER BY howManyTrained ASC
@@ -311,18 +254,6 @@ def getTable(allTables, tableName):
         if table.tableName == tableName:
             return table
 
-def increaseWordCounter(dbCon,dbCur,word):
-    dbCur.execute('''SELECT howManyTrained FROM dictionary
-                     WHERE eng = ?
-                     OR pl = ?''',(word, word))
-    counter = dbCur.fetchall()
-    updatedCounter = counter[0][0] + 1
-    dbCur.execute('''UPDATE dictionary
-                     SET howManyTrained = ? 
-                     WHERE eng = ?
-                     OR pl = ?''',(updatedCounter, word, word))
-    dbCon.commit()
-
 def initializeDatabase(dbName):
     databaseConnection = None
     try:
@@ -338,7 +269,7 @@ def initializeDatabase(dbName):
 
 def learningModeEngToPl(dbCon,dbCur):
     answer = None
-    os.system('cls')
+    cls()
     while answer != 'q':
         word = getRandomWord(dbCur)
         print(f'Type: {word[2]}\nEnglish: {word[0]}')
@@ -349,92 +280,58 @@ def learningModeEngToPl(dbCon,dbCur):
             plWords = word[1]
         if answer in plWords:
             print(f"{bcolors.OKGREEN}Correct!{bcolors.ENDC} {word[1]}\n")
-            increaseWordCounter(dbCon,dbCur,word[0])
+            increaseWordCounterByOneInDb(dbCon,dbCur,word[0])
         else:
             print(f"{bcolors.FAIL}Wrong answer{bcolors.ENDC}, the correct is: {word[1]}\n")
-    os.system('cls')   
+    cls()   
 
 def learningModePlToEng(dbCon,dbCur):
     answer = None
-    os.system('cls')
+    cls()
     while answer != 'q':
         word = getRandomWord(dbCur)
         print(f'Type: {word[2]}\nPolish: {word[1]}')
         answer = input("English: ")
         if answer == word[0]:
             print(f"{bcolors.OKGREEN}Correct!{bcolors.ENDC}\n")
-            increaseWordCounter(dbCon,dbCur,answer)
+            increaseWordCounterByOneInDb(dbCon,dbCur,answer)
         else:
             print(f"Wrong answer, the correct is: {bcolors.FAIL}{word[0]}{bcolors.ENDC}\n")
-    #os.system('cls')
+    #cls()
 
-def readingMode(dbCon,dbCur,allTables):
-    createReadingTable(dbCon,dbCur)
-    os.system('cls')                
-    answer = input('''1 - Add an expression
+def readingMode(dbCon,dbCur):
+    createReadingTableInDb(dbCon,dbCur)
+    cls()
+    while True:        
+        answer = input('''1 - Add an expression
 2 - Read a random expression
 3 - Reset reading counters
 q - return to the main menu
 Your choice: ''')
-    match answer:
-        case '1':
-            addingMode = True
-            while addingMode:
-                try:
-                    expression = input("Write an English expression: ")
-                    if expression == "q" or expression == "":
-                        raise ValueError
-                    comment = input("Any comment?: ")
-                    if comment == "q":
-                        raise ValueError
-                    addExpression(dbCon, dbCur, expression, comment)
-                except ValueError:
-                    os.system('cls')
-                    print("The operation has been cancelled\n")
-                    addingMode = False
-        case '2':
-            readingMode = True
-            while readingMode:
-                #expression = getRandomExpression(dbCon, dbCur)
-                expression = getRandom(dbCon, dbCur, allTables, 'expressions')
-                print(f'Expression: {expression[0]}\nComments: {expression[1]}')
-                comment = input()
-                if comment == 'q':
-                    readingMode = False
-                    os.system('cls')
-        case '3':
-            #zintegrować to z 'resetAllCounters'
-            try:
-                dbCur.execute('''UPDATE expressions
-                                    SET howManyRead = 0''')
-                dbCon.commit()
-                print("All expressions' counters have been set to 0")
-            except sqlite3.Error as e:
-                print(f"There was an error during reseting words' counters: {e}")
-        case 'q':
-                        os.system('cls')
+        if answer in ['1', '2', '3', 'q']:
+            return answer
+        print('Wrong answer, try one more time\n')
 
-def resetAllCounters(dbCon, dbCur):
-    try:
-        dbCur.execute('''UPDATE dictionary
-                        SET howManyTrained = 0''')
-        dbCon.commit()
+
+
+def readRandomExpression(dbCon, dbCur, allTables):
+    while True:
+        #expression = getRandomExpression(dbCon, dbCur)
+        expression = getRandom(dbCon, dbCur, allTables, 'expressions')
+        print(f'Expression: {expression[0]}\nComments: {expression[1]}')
+        ifExit = input()
+        if ifExit == 'q':
+            cls()
+            return
+
+def resetReadingCounters(dbCon, dbCur):
+    resetAllExpressionsCounterInDb(dbCon, dbCur)
+    cls()
+    print("All expressions' counters have been set to 0\n")
+
+def resetAllWordsCounters(dbCon, dbCur):
+    result = resetAllWordsCountersInDb(dbCon, dbCur)
+    if result is True:
         print('All counters have been set to 0')
-    except sqlite3.Error as e:
-        print(f"There was an error during reseting words' counters: {e}")
-
-def setCounter(dbCon, dbCur, word, counter):
-    dbCur.execute('''UPDATE dictionary
-                     SET howManyTrained = ? 
-                     WHERE eng = ?
-                     OR pl = ?''',(counter, word, word))
-    dbCon.commit()
-    dbCur.execute('''SELECT howManyTrained
-                     FROM dictionary
-                     WHERE eng = ?
-                     OR pl = ?''',(word, word))
-    after = dbCur.fetchall()
-    if str(after[0][0]) == counter:
-        print(f'Counter has been set to {counter} for word "{word}" successfully')
     else:
-        print(f'We were unable to set counter for word "{word}", please try again.')
+        print(f"There was an error during reseting words' counters: {result}")

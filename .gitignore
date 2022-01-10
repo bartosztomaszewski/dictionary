@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+test.py
 
 # C extensions
 *.so
@@ -36,6 +37,7 @@ MANIFEST
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
+TO DO.txt
 
 # Unit test / coverage reports
 htmlcov/
